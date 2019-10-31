@@ -14,7 +14,7 @@ var request = require('request');
 			- Can run following JS from console to get cookie:
 				document.cookie.split("CPSESSID=")[1].split(";")[0]
 */
-var token = 'AQARMjAxOTEwMzAyMDU2MDQDABA3RDBXUkkzMzAyMDc2'
+var token = 'AQARMjAxOTEwMzAyMjA5MTQDABAwSlBCQkUzMzAyMDc2'
 
 var headers = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -58,7 +58,7 @@ function req_callback(error, response, body) {
 		const ch = chunk(rows, 20);
 
 		// Map each section into JSON dictionary
-		const column_headers = ["status", "crn", "subj", "num", "section", "campus", "mode",
+		var column_headers = ["status", "crn", "subj", "num", "section", "campus", "mode",
 			"cred", "title", "days", "time", "cap", "act", "rem", "wl_cap", "wl_act", "wl_rem",
 			"instr", "loc", "attr"];
 		const classes = ch.map(row_arr => {
@@ -69,6 +69,7 @@ function req_callback(error, response, body) {
 				section_dict[cur_column] = cur_data;
 			}
 			// Custom parse some fields
+			section_dict.time = section_dict.time.padEnd(17, " ");
 			section_dict.course = section_dict.subj + " " + section_dict.num;
 			section_dict.rem = parseInt(section_dict.rem);
 			return section_dict;
@@ -76,7 +77,8 @@ function req_callback(error, response, body) {
 
 		// Only show classes with open space, scheduled days, and announced times.
 		var avaliable = classes.filter(c => {
-			return c.days !== "" && c.rem != 0 && c.loc != "TBA" && c.time != "TBA"
+
+			return c.rem != 0
 		});
 
 		const del_fields = ["subj", "num", "campus", "cred", "title", "cap", "act", "loc", "attr"];
@@ -90,9 +92,10 @@ function req_callback(error, response, body) {
 		})
 
 		if (avaliable.length == 0) str = ["No classes/seats open"];
-
+		column_headers = column_headers.filter(header => !del_fields.includes(header));
 		try {
-			console.log(`${classes[0].course}\n${str.join(`\n`)}\n`);
+			column_headers[column_headers.indexOf("time")] = "time               ";
+			console.log(`${classes[0].course}\n${column_headers.map(h => h.padEnd(4," ")).join(" ")}\n${str.join(`\n`)}\n`);
 		} catch (e) {
 			console.log("Cookie has expired");
 		}
