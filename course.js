@@ -2,7 +2,7 @@
 
 const cheerio = require('cheerio');
 var request = require('request');
-
+require("dotenv").config();
 /*
 	Steps to get/refresh token:
 		1. Log in to Buzzport
@@ -14,7 +14,6 @@ var request = require('request');
 			- Can run following JS from console to get cookie:
 				document.cookie.split("CPSESSID=")[1].split(";")[0]
 */
-var token = 'AQARMjAxOTEwMzAyMjA5MTQDABAwSlBCQkUzMzAyMDc2'
 
 var headers = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -23,7 +22,7 @@ var headers = {
     'Host': 'oscar.gatech.edu',
     'Referer': 'https://oscar.gatech.edu/pls/bprod/bwskfcls.P_GetCrse',
     'Accept-Encoding': 'br, gzip, deflate',
-    'Cookie': `CPSESSID=${token};`
+    'Cookie': `CPSESSID=${process.env.SESSION_TOKEN};`
 };
 
 // Format magic string to return course info
@@ -77,7 +76,6 @@ function req_callback(error, response, body) {
 
 		// Only show classes with open space, scheduled days, and announced times.
 		var avaliable = classes.filter(c => {
-
 			return c.rem != 0
 		});
 
@@ -102,7 +100,7 @@ function req_callback(error, response, body) {
 	}
 }
 
-const classes = ["CS 2200", "CS 4001", "CS 2110", "PSYC 2210", "CS 3750", "PSYC 2210"];
+const classes = ["PUBP 4650", "CS 4001", "CS 3750"];
 classes.forEach(async cur_class => {
 	const parts = cur_class.split(" ");
 	const gen_opts = options("202002", parts[0], parts[1]);
