@@ -1,19 +1,34 @@
+/**
+ *	Author: Lincoln Anders <contact@lincolnanders.com>
+ *	Created: Oct 30, 2019
+ *	Updated: Mar 30, 2020
+ *	Repository: https://github.com/lincolnanders5/BuzzCrack
+ *
+ *	course.js
+ *	Find open sections by providing array of course names.
+ *
+ *	(c) Copyright by Lincoln Anders
+ **/
+
+ /*
+ 	Steps to get/refresh token:
+ 		1. Log in to Buzzport
+ 		2. Open Registration
+ 		3. Open browser web inspector
+ 		4. Copy SESSID cookie
+ 			- Safari: Dev Tools > Storage > Cookies
+ 			- Chrome: Dev Tools > Application > Cookies
+ 		5. Paste into `.env` file like "SESSION_TOKEN=..."
+ */
+
+// TODO: Replace your course names here!
+const classes = ["CS 2200", "MUSI 3018", "PSYC 2015", "LMC 3432", "CS 3311"];
+
 // https://curl.trillworks.com/#node
 
 const cheerio = require('cheerio');
 var request = require('request');
 require("dotenv").config();
-/*
-	Steps to get/refresh token:
-		1. Log in to Buzzport
-		2. Open Registration
-		3. Open browser web inspector
-		4. Copy CPSESSID cookie
-			- Safari: Storage > Cookies
-			- Chrome: Application > Cookies
-			- Can run following JS from console to get cookie:
-				document.cookie.split("CPSESSID=")[1].split(";")[0]
-*/
 
 var headers = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -22,7 +37,7 @@ var headers = {
     'Host': 'oscar.gatech.edu',
     'Referer': 'https://oscar.gatech.edu/pls/bprod/bwskfcls.P_GetCrse',
     'Accept-Encoding': 'br, gzip, deflate',
-    'Cookie': `CPSESSID=${process.env.SESSION_TOKEN};`
+    'Cookie': `SESSID=${process.env.SESSION_TOKEN};`
 };
 
 // Format magic string to return course info
@@ -100,9 +115,8 @@ function req_callback(error, response, body) {
 	}
 }
 
-const classes = ["PUBP 4650", "CS 4001", "CS 3750"];
 classes.forEach(async cur_class => {
 	const parts = cur_class.split(" ");
-	const gen_opts = options("202002", parts[0], parts[1]);
+	const gen_opts = options("202008", parts[0], parts[1]);
 	request(gen_opts, req_callback);
 });
